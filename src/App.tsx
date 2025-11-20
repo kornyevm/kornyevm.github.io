@@ -1,14 +1,10 @@
-import { useState } from 'react'
+import ChartDashboard from "@/components/chart-dashboard/ChartDashboard.tsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div className='text-center text-3xl'>
-        Blacksmith Dash
-      </div>
-    </>
+    <div className='xl:px-44 lg:px-32 md:px-24 sm:px-5 px-2 py-5'>
+      <ChartDashboard />
+    </div>
   )
 }
 
