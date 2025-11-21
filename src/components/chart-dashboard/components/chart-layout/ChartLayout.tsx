@@ -1,19 +1,23 @@
 import type {Chart} from "@/components/chart-dashboard/chart.ts"
 import ChartComponent from "@/components/chart-dashboard/components/chart-layout/components/ChartComponent"
-import GridLayout from "react-grid-layout"
+import GridLayout, { type Layout } from "react-grid-layout"
 import {LayoutMode} from "@/components/chart-dashboard/ChartDashboard.tsx"
-import {useEffect, useRef, useState} from "react"
+import {useEffect, useRef, useState, useCallback} from "react"
 import ResizeHandle from "@/components/chart-dashboard/components/chart-layout/components/ResizeHandle.tsx";
+import type {DateRange} from "react-day-picker";
 
 type ChartLayoutProps = {
   charts: Chart[]
   layoutMode: LayoutMode
+  dateRange: DateRange | undefined
 }
 
 const CHART_HEIGHT = 2
 const ROW_HEIGHT_PX = 30
+const FREE_MODE_COLS = 12
+const LOCAL_STORAGE_KEY = "chart-dashboard-free-layout"
 
-function ChartDashboard({ charts, layoutMode }: ChartLayoutProps) {
+function ChartDashboard({ charts, layoutMode, dateRange }: ChartLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState<number>(1000)
 
@@ -34,7 +38,18 @@ function ChartDashboard({ charts, layoutMode }: ChartLayoutProps) {
     }
   }, [])
 
-  let layout 
+  const persistFreeLayoutChange = useCallback((newLayout: Layout[]) => {
+    if (layoutMode !== LayoutMode.Free) return
+
+    // TODO: If this layout is already cached, skip
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newLayout))
+    } catch (error) {
+      console.error("Could not save layout to Local Storage:", error)
+    }
+  }, [layoutMode])
+
+  let layout: Layout[]
   let numGridCols: number
 
   switch (layoutMode) {
@@ -58,17 +73,29 @@ function ChartDashboard({ charts, layoutMode }: ChartLayoutProps) {
         isResizable: false
       }))
       break
-    default:
-      numGridCols = 10
-      layout = charts.map((chart, i) => ({
-        i: chart.id,
-        x: 0, y: i,
-        w: numGridCols , h: CHART_HEIGHT,
-        minW: 2, maxW: numGridCols,
-        minH: 2, maxH: 7,
-        isDraggable: true,
-        isResizable: true
-      }))
+    default: // Free mode
+      numGridCols = FREE_MODE_COLS
+      
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
+      if (saved) {
+        // TODO: Handle errors + show feedback
+        layout = JSON.parse(saved)
+      } else {
+        layout = charts.map((chart, i) => ({
+          i: chart.id,
+          x: 0,
+          y: i,
+          w: FREE_MODE_COLS,
+          h: CHART_HEIGHT,
+          minW: 2,
+          maxW: FREE_MODE_COLS,
+          minH: 2,
+          maxH: 7,
+          isDraggable: true,
+          isResizable: true,
+        }))
+      }
+      break
   }
 
   return (
@@ -78,15 +105,20 @@ function ChartDashboard({ charts, layoutMode }: ChartLayoutProps) {
         cols={numGridCols}
         rowHeight={ROW_HEIGHT_PX}
         width={width}
-        margin={[10, 25]}
+        margin={[10, 45]}
         isBounded={true}
         draggableHandle=".drag-chart-handle"
         resizeHandle={(axis, ref) => <ResizeHandle handleAxis={axis} ref={ref} />}
+        onLayoutChange={persistFreeLayoutChange}
       >
         {
           charts.map((chart) => (
             <div key={chart.id} className="h-full relative">
-              <ChartComponent chart={chart} showDragHandle={layoutMode === LayoutMode.Free} />
+              <ChartComponent 
+                chart={chart} 
+                showDragHandle={layoutMode === LayoutMode.Free}
+                dateRange={dateRange}
+              />
             </div>
           ))
         }

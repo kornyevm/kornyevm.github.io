@@ -1,4 +1,5 @@
 import DateRangePicker from "@/components/chart-dashboard/components/DateRangePicker.tsx";
+import {toStartOfDay, toEndOfDay} from "@/lib/date-utils.ts";
 import LayoutModeSwitch from "@/components/chart-dashboard/components/LayoutModeSwitch.tsx";
 import {Card, CardContent} from "@/components/ui/card.tsx";
 import ChartLayout from "@/components/chart-dashboard/components/chart-layout/ChartLayout.tsx";
@@ -19,16 +20,24 @@ export const LayoutMode = {
 } as const
 export type LayoutMode = (typeof LayoutMode)[keyof typeof LayoutMode]
 
+const DEFAULT_DATE_RANGE__MONTHS = 3
+
 function ChartDashboard() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(LayoutMode.Vertical)
+  
+  const today = new Date()
+  const from = new Date(today)
+  from.setMonth(today.getMonth() - DEFAULT_DATE_RANGE__MONTHS)
+
+  // TODO: Possible that from is much less than the minimum avail minDate (below) — add a loud validation
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: orderedChartDataDates[0],
-    to: orderedChartDataDates[orderedChartDataDates.length - 1],
+    from: toStartOfDay(from),
+    to: toEndOfDay(today),
   })
 
   return (
     <>
-      <Card className="w-full mt-4">
+      <Card className="w-full mt-4 p-1.5">
         <CardContent className='p-2.5 flex'>
           <LayoutModeSwitch
             mode={layoutMode}
@@ -38,6 +47,8 @@ function ChartDashboard() {
             className='ml-auto'
             dateRange={dateRange}
             updateDateRange={setDateRange}
+            minDate={orderedChartDataDates[0]}
+            maxDate={orderedChartDataDates[orderedChartDataDates.length - 1]}
           />
         </CardContent>
       </Card>
@@ -45,6 +56,7 @@ function ChartDashboard() {
       <ChartLayout
         charts={chartData}
         layoutMode={layoutMode}
+        dateRange={dateRange}
       />
     </>
   )

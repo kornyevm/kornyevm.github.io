@@ -1,7 +1,7 @@
 import {Category, type Chart} from "@/components/chart-dashboard/chart.ts";
 
 
-const MAX_CHART_DATE_RANGE_IN_DAYS = 112;
+const MAX_CHART_DATE_RANGE_IN_DAYS = 200;
 const CHART_NAMES = [
   "Alpha",
   "Beta",
