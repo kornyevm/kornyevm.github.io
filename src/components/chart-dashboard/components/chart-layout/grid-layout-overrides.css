@@ -1,8 +1,0 @@
-/*
-  Note: See React grid layout classes for details: https://github.com/react-grid-layout/react-grid-layout?tab=readme-ov-file
-*/
-.react-grid-item.react-grid-placeholder {
-    background: rgba(0, 123, 255, 0.297) !important;
-    border-radius: 8px !important;
-    transition: background 0.2s ease;
-}

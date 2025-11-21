@@ -10,7 +10,7 @@ import type {DateRange} from "react-day-picker";
 // Grid Library Imports
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import "./components/chart-layout/grid-layout-overrides.css"
+import "./components/chart-layout/library-overrides.css"
 
 // Types
 export const LayoutMode = {
@@ -57,6 +57,7 @@ function ChartDashboard() {
         charts={chartData}
         layoutMode={layoutMode}
         dateRange={dateRange}
+        updateDateRange={setDateRange}
       />
     </>
   )

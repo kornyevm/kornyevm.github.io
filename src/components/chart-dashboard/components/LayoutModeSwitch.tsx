@@ -43,8 +43,8 @@ function LayoutModeSwitch({ mode, updateMode }: LayoutModeSwitchProps) {
                 <CircleQuestionMark />
               </Button>
             </PopoverTrigger>
-            <PopoverContent side='bottom' className="w-80">
-                <p className='text-sm'>
+            <PopoverContent side='right' className="w-80">
+                <p className='text-xs'>
                   In Custom layout mode, you can freely position / scale your data using the handles in the bottom right-hand corner of each chart.
                   <br /><br />
                   Don't worry! Your changes will be auto-saved.

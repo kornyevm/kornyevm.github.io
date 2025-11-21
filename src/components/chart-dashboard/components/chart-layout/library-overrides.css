@@ -1,0 +1,22 @@
+/*
+  -----------------------------React Grid Layout Overrides -----------------------------
+  See: https://github.com/react-grid-layout/react-grid-layout?tab=readme-ov-file
+*/
+/* Style the droppable area for the grid layout */
+.react-grid-item.react-grid-placeholder {
+    background: rgba(0, 123, 255, 0.297) !important;
+    border-radius: 8px !important;
+    transition: background 0.2s ease;
+}
+
+/* ----------------------------- Recharts Overrides ----------------------------- */
+/* Hide the recharts tooltip (onhover) */
+.recharts-tooltip-wrapper {
+    display: none;
+}
+
+/* Apply resize cursor to all chart elements only when dragging */
+.chart-dragging .recharts-wrapper,
+.chart-dragging .recharts-wrapper * {
+    cursor: ew-resize !important;
+}

@@ -10,6 +10,7 @@ type ChartLayoutProps = {
   charts: Chart[]
   layoutMode: LayoutMode
   dateRange: DateRange | undefined
+  updateDateRange: (dateRange: DateRange | undefined) => void
 }
 
 const CHART_HEIGHT = 2
@@ -17,7 +18,7 @@ const ROW_HEIGHT_PX = 30
 const FREE_MODE_COLS = 12
 const LOCAL_STORAGE_KEY = "chart-dashboard-free-layout"
 
-function ChartDashboard({ charts, layoutMode, dateRange }: ChartLayoutProps) {
+function ChartDashboard({ charts, layoutMode, dateRange, updateDateRange }: ChartLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState<number>(1000)
 
@@ -118,6 +119,7 @@ function ChartDashboard({ charts, layoutMode, dateRange }: ChartLayoutProps) {
                 chart={chart} 
                 showDragHandle={layoutMode === LayoutMode.Free}
                 dateRange={dateRange}
+                updateDateRange={updateDateRange}
               />
             </div>
           ))
