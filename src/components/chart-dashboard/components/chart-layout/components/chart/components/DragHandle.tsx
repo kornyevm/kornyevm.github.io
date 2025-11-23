@@ -6,7 +6,7 @@ export default function DragHandle() {
     <div
       className="
         drag-chart-handle
-        absolute bottom-0 right-6
+        absolute bottom-3 right-6
         flex items-center justify-center
         w-5 h-5
         bg-white border border-gray-400 rounded

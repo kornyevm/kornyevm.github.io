@@ -19,7 +19,7 @@ const ResizeHandle = forwardRef<HTMLElement, ResizeHandleProps>(
           react-resizable-handle
           ${axisClass}
           ${className}
-          absolute bottom-1 right-1
+          absolute bottom-3! right-1
           flex items-center justify-center
           w-5 h-5
           bg-white border border-gray-400 rounded

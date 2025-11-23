@@ -9,6 +9,9 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  build: {
+    outDir: 'docs'  // For GH Pages deployment
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

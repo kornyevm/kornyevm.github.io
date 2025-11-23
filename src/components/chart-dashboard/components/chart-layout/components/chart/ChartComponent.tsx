@@ -14,6 +14,8 @@ import {useChartHover} from "@/components/chart-dashboard/components/chart-layou
 import {
   SynchronizedChartCursor
 } from "@/components/chart-dashboard/components/chart-layout/components/chart/components/SynchronizedChartCursor.tsx";
+import {ButtonGroup} from "@/components/ui/button-group.tsx";
+import {Button} from "@/components/ui/button.tsx";
 
 type ChartProps = {
   chart: Chart,
@@ -119,16 +121,36 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
         </div>
       </div>
       <div>
-        <div className='flex-shrink-0'>
-          <div className='-mt-2 text-sm ml-1'>{chart.label}</div>
+        <div className='flex-shrink-0 flex items-center justify-between -mt-2'>
+          <div className='text-sm ml-1'>{chart.label}</div>
 
-          { showDragHandle && <DragHandle /> }
+          <div className='flex items-center gap-2'>
+            { showDragHandle && <DragHandle /> }
 
-          {/*TODO: Come back & improve styling*/}
-          {/*<ButtonGroup className='ml-auto'>*/}
-          {/*  <Button size='sm' variant='destructive'>{chart.data[0].date.toLocaleDateString()}</Button>*/}
-          {/*  <Button size='sm' disabled={true} variant='outline'>{chart.data.length}</Button>*/}
-          {/*</ButtonGroup>*/}
+            <ButtonGroup>
+              <Button 
+                size='xs' 
+                variant='outline'
+                className='cursor-default hover:bg-transparent hover:text-current text-xs text-white'
+                style={{ 
+                  backgroundColor: getCategoryColor(),
+                  borderColor: getCategoryColor(),
+                }}
+              >
+                {filteredData[0].date.toLocaleDateString()}
+              </Button>
+              <Button 
+                size='xs' 
+                variant='outline' 
+                className='cursor-default hover:bg-transparent hover:text-black text-xs'
+                style={{ 
+                  borderColor: getCategoryColor()
+                }}
+              >
+                {filteredData.length}
+              </Button>
+            </ButtonGroup>
+          </div>
         </div>
       </div>
     </>
