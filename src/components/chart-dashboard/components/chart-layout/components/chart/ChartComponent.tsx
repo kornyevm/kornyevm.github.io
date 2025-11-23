@@ -105,7 +105,7 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
               totalBars={filteredData.length}
               color={overlayRect.color}
               containerWidth={dimensions.width}
-              containerHeight={dimensions.height - DATE_NIB_MARGIN}
+              containerHeight={dimensions.height - DATE_NIB_MARGIN + 5}
             />
           )}
           {isDragging && startIndex !== null && startDate && dimensions.width > 0 && (

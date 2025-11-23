@@ -7,6 +7,8 @@ type DateRangeOverlayProps = {
   containerHeight: number
 }
 
+const OVERLAY_PADDING_Y: number = 5
+
 export const DateRangeOverlay = ({ 
   startIndex, 
   endIndex, 
@@ -27,9 +29,9 @@ export const DateRangeOverlay = ({
       style={{
         position: 'absolute',
         left: `${startX}px`,
-        top: 0,
+        top: `-${OVERLAY_PADDING_Y}px`,
         width: `${width}px`,
-        height: `${containerHeight}px`,
+        height: `${containerHeight + OVERLAY_PADDING_Y}px`,
         backgroundColor: color,
         opacity: 0.3,
         borderRadius: '8px',
