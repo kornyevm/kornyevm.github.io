@@ -70,14 +70,14 @@ function DateRangePicker({ className, dateRange, updateDateRange, minDate, maxDa
             {dateRangeString}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="end">
+        <PopoverContent className="w-screen max-w-[100vw)] sm:w-auto overflow-hidden p-0" align="end">
           <Calendar
             mode="range"
             defaultMonth={dateRange?.from}
             selected={dateRange}
             onSelect={handleDateRangeSelect}
             numberOfMonths={2}
-            className="w-[500px]"
+            className="w-full sm:w-[500px]"
             disabled={disabledDates}
           />
           {/*<Button variant='link' onClick={() => setOpen(false)}>Apply</Button>*/}

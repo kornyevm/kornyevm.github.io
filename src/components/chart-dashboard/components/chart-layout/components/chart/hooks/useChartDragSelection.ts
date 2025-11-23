@@ -25,6 +25,7 @@ export function useChartDragSelection({
   const [isDragging, setIsDragging] = useState(false)
   const [startIndex, setStartIndex] = useState<number | null>(null)
   const [currentIndex, setCurrentIndex] = useState<number | null>(null)
+  const [hasMoved, setHasMoved] = useState(false)
 
   // Calculate which bar index the mouse is over
   const calculateBarIndex = useCallback(
@@ -39,12 +40,9 @@ export function useChartDragSelection({
 
   // Handle bar click to start selection
   const handleBarClick = useCallback(
-    (_data: any, index: number, e?: any) => {
+    (_data: any, _index: number, e?: any) => {
       e?.preventDefault?.()
       e?.stopPropagation?.()
-      setStartIndex(index)
-      setCurrentIndex(index)
-      setIsDragging(true)
     },
     []
   )
@@ -73,7 +71,8 @@ export function useChartDragSelection({
 
       setStartIndex(clampedIndex)
       setCurrentIndex(clampedIndex)
-      setIsDragging(true)
+      setHasMoved(false)
+      // Don't set isDragging yet - wait for mouse to actually move
       e.preventDefault() // Prevent text selection
     },
     [calculateBarIndex]
@@ -82,7 +81,7 @@ export function useChartDragSelection({
   // Handle mouse move during drag
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDragging || startIndex === null || !containerRef.current) return
+      if (startIndex === null || !containerRef.current) return
 
       const container = containerRef.current
       const rect = container.getBoundingClientRect()
@@ -90,18 +89,37 @@ export function useChartDragSelection({
       const chartWidth = rect.width
 
       const clampedIndex = calculateBarIndex(mouseX, chartWidth)
-      setCurrentIndex(clampedIndex)
-      e.preventDefault() // Prevent text selection during drag
+      
+      // Only start dragging if mouse has actually moved to a different bar
+      if (!hasMoved && clampedIndex !== startIndex) {
+        setHasMoved(true)
+        setIsDragging(true)
+      }
+      
+      if (isDragging || hasMoved) {
+        setCurrentIndex(clampedIndex)
+        e.preventDefault() // Prevent text selection during drag
+      }
     },
-    [isDragging, startIndex, calculateBarIndex]
+    [isDragging, startIndex, hasMoved, calculateBarIndex]
   )
 
   // Handle mouse up to finalize selection
   const handleMouseUp = useCallback(() => {
-    if (!isDragging || startIndex === null || currentIndex === null) {
+    if (startIndex === null || currentIndex === null) {
       setIsDragging(false)
       setStartIndex(null)
       setCurrentIndex(null)
+      setHasMoved(false)
+      return
+    }
+    
+    // If mouse never moved, just reset without updating date range
+    if (!hasMoved || !isDragging) {
+      setIsDragging(false)
+      setStartIndex(null)
+      setCurrentIndex(null)
+      setHasMoved(false)
       return
     }
 
@@ -122,7 +140,7 @@ export function useChartDragSelection({
         (d) => d.date.getTime() === endDate.getTime()
       )
 
-      if (fullStartIndex >= 0 && fullEndIndex >= 0) {
+      if (fullStartIndex >= 0 && fullEndIndex >= 0 && fullStartIndex !== fullEndIndex) {
         updateDateRange({
           from: toStartOfDay(chart.data[fullStartIndex].date),
           to: toEndOfDay(chart.data[fullEndIndex].date),
@@ -134,10 +152,12 @@ export function useChartDragSelection({
     setIsDragging(false)
     setStartIndex(null)
     setCurrentIndex(null)
+    setHasMoved(false)
   }, [
     isDragging,
     startIndex,
     currentIndex,
+    hasMoved,
     filteredData,
     chart.data,
     updateDateRange,
@@ -151,24 +171,36 @@ export function useChartDragSelection({
   // Clean up drag on unmount or when component updates
   useEffect(() => {
     const handleGlobalMouseUp = () => {
-      if (isDragging) {
+      // Always call handleMouseUp if we have a startIndex (even if not dragging yet)
+      if (startIndex !== null) {
         handleMouseUp()
       }
     }
 
     const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (isDragging && containerRef.current) {
+      if (startIndex !== null && containerRef.current) {
         const container = containerRef.current
         const rect = container.getBoundingClientRect()
         const mouseX = e.clientX - rect.left
         const chartWidth = rect.width
 
         const clampedIndex = calculateBarIndex(mouseX, chartWidth)
-        setCurrentIndex(clampedIndex)
+        
+        // Only start dragging if mouse has actually moved to a different bar
+        if (!hasMoved && clampedIndex !== startIndex) {
+          setHasMoved(true)
+          setIsDragging(true)
+        }
+        
+        if (isDragging || hasMoved) {
+          setCurrentIndex(clampedIndex)
+        }
       }
     }
 
-    if (isDragging) {
+    // Listen for mouse events when startIndex is set (even if not dragging yet)
+    // This allows us to detect when mouse moves and start dragging
+    if (startIndex !== null) {
       window.addEventListener("mouseup", handleGlobalMouseUp)
       window.addEventListener("mousemove", handleGlobalMouseMove)
       return () => {
@@ -176,7 +208,7 @@ export function useChartDragSelection({
         window.removeEventListener("mousemove", handleGlobalMouseMove)
       }
     }
-  }, [isDragging, handleMouseUp, calculateBarIndex])
+  }, [isDragging, hasMoved, startIndex, handleMouseUp, calculateBarIndex])
 
   const startDate = startIndex !== null ? filteredData[startIndex]?.date : null
 

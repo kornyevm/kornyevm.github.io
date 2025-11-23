@@ -4,7 +4,7 @@ import LayoutModeSwitch from "@/components/chart-dashboard/components/LayoutMode
 import {Card, CardContent} from "@/components/ui/card.tsx";
 import ChartLayout from "@/components/chart-dashboard/components/chart-layout/ChartLayout.tsx";
 import {chartData, orderedChartDataDates} from "@/components/chart-dashboard/chart-data.ts";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import type {DateRange} from "react-day-picker";
 
 // Grid Library Imports
@@ -21,6 +21,7 @@ export const LayoutMode = {
 export type LayoutMode = (typeof LayoutMode)[keyof typeof LayoutMode]
 
 const DEFAULT_DATE_RANGE__MONTHS = 3
+const SM_BREAKPOINT = 640 // TW xs|sm breakpoint
 
 function ChartDashboard() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>(LayoutMode.Vertical)
@@ -35,16 +36,32 @@ function ChartDashboard() {
     to: toEndOfDay(today),
   })
 
+  // TODO: Can be more efficient via media queries
+  useEffect(() => {
+    const checkMobile = () => {
+      const isSmallScreen = window.innerWidth < SM_BREAKPOINT
+      if (isSmallScreen) {
+        setLayoutMode(LayoutMode.Vertical)
+      }
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   return (
     <>
       <Card className="w-full mt-4 p-1.5">
         <CardContent className='p-2.5 flex'>
-          <LayoutModeSwitch
-            mode={layoutMode}
-            updateMode={setLayoutMode}
-          />
+          <div className="hidden sm:flex">
+            <LayoutModeSwitch
+              mode={layoutMode}
+              updateMode={setLayoutMode}
+            />
+          </div>
           <DateRangePicker
-            className='ml-auto'
+            className='ml-0 sm:ml-auto'
             dateRange={dateRange}
             updateDateRange={setDateRange}
             minDate={orderedChartDataDates[0]}

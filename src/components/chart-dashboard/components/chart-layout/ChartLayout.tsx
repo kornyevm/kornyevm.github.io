@@ -2,10 +2,11 @@ import type {Chart} from "@/components/chart-dashboard/chart.ts"
 import ChartComponent from "@/components/chart-dashboard/components/chart-layout/components/chart/ChartComponent.tsx"
 import GridLayout, { type Layout } from "react-grid-layout"
 import {LayoutMode} from "@/components/chart-dashboard/ChartDashboard.tsx"
-import {useEffect, useRef, useState, useCallback} from "react"
+import {useCallback} from "react"
 import ResizeHandle from "@/components/chart-dashboard/components/chart-layout/components/ResizeHandle.tsx";
 import type {DateRange} from "react-day-picker";
 import {ChartHoverProvider} from "@/components/chart-dashboard/components/chart-layout/context-providers/ChartHoverContext.tsx";
+import {useContainerDimensions} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useContainerDimensions.ts";
 
 type ChartLayoutProps = {
   charts: Chart[]
@@ -20,25 +21,8 @@ const FREE_MODE_COLS = 12
 const LOCAL_STORAGE_KEY = "chart-dashboard-free-layout"
 
 function ChartDashboard({ charts, layoutMode, dateRange, updateDateRange }: ChartLayoutProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState<number>(1000)
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    setWidth(container.offsetWidth);
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setWidth(entry.contentRect.width)
-      }
-    })
-    resizeObserver.observe(container)
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [])
+  const { containerRef, dimensions } = useContainerDimensions()
+  const width = dimensions.width || 1000
 
   const persistFreeLayoutChange = useCallback((newLayout: Layout[]) => {
     if (layoutMode !== LayoutMode.Free) return

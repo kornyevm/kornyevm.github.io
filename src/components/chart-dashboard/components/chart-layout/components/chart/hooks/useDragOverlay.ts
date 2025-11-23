@@ -19,6 +19,8 @@ export function useDragOverlay({
     const minIndex = Math.min(startIndex, currentIndex)
     const maxIndex = Math.max(startIndex, currentIndex)
 
+    if (minIndex === maxIndex) return null
+
     return {
       startIndex: minIndex,
       endIndex: maxIndex,
