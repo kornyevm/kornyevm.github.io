@@ -1,24 +1,28 @@
 import type {Chart} from "@/components/chart-dashboard/chart.ts";
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart.tsx";
 import {Bar, BarChart} from "recharts";
-import DragHandle from "@/components/chart-dashboard/components/chart-layout/components/DragHandle.tsx";
+import DragHandle from "@/components/chart-dashboard/components/chart-layout/components/chart/components/DragHandle.tsx";
 import type {DateRange} from "react-day-picker";
-import {DateRangeOverlay} from "@/components/chart-dashboard/components/chart-layout/components/DateRangeOverlay.tsx";
-import {useValidatedDateRangeFilteredData} from "@/components/chart-dashboard/components/chart-layout/hooks/useValidatedDateRangeFilteredData.ts";
-import {useContainerDimensions} from "@/components/chart-dashboard/components/chart-layout/hooks/useContainerDimensions.ts";
-import {useChartDragSelection} from "@/components/chart-dashboard/components/chart-layout/hooks/useChartDragSelection.ts";
-import {useChartConfig} from "@/components/chart-dashboard/components/chart-layout/hooks/useChartConfig.ts";
-import {useDragOverlay} from "@/components/chart-dashboard/components/chart-layout/hooks/useDragOverlay.ts";
+import {DateRangeOverlay} from "@/components/chart-dashboard/components/chart-layout/components/chart/components/DateRangeOverlay.tsx";
+import {StartDateNib} from "@/components/chart-dashboard/components/chart-layout/components/chart/components/StartDateNib.tsx";
+import {useValidatedDateRangeFilteredData} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useValidatedDateRangeFilteredData.ts";
+import {useContainerDimensions} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useContainerDimensions.ts";
+import {useChartDragSelection} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useChartDragSelection.ts";
+import {useChartConfig} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useChartConfig.ts";
+import {useDragOverlay} from "@/components/chart-dashboard/components/chart-layout/components/chart/hooks/useDragOverlay.ts";
+import {useChartHover} from "@/components/chart-dashboard/components/chart-layout/context-providers/ChartHoverContext.tsx";
 import {
   SynchronizedChartCursor
-} from "@/components/chart-dashboard/components/chart-layout/components/SynchronizedChartCursor.tsx";
+} from "@/components/chart-dashboard/components/chart-layout/components/chart/components/SynchronizedChartCursor.tsx";
 
 type ChartProps = {
   chart: Chart,
   showDragHandle: boolean,
   dateRange: DateRange | undefined,
   updateDateRange: (dateRange: DateRange | undefined) => void,
-};
+}
+
+const DATE_NIB_MARGIN = 25
 
 function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: ChartProps) {
   // TODO: The chart date filter is sorta inflexible — and should be communicated in the interface of the component.
@@ -26,11 +30,13 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
   const { filteredData } = useValidatedDateRangeFilteredData(chart, dateRange)
   const { containerRef, dimensions } = useContainerDimensions()
   const { chartConfig, getCategoryColor, getFillValue } = useChartConfig(chart)
+  const { setActiveChartId } = useChartHover()
 
   const {
     isDragging,
     startIndex,
     currentIndex,
+    startDate,
     handleBarClick,
     handleChartMouseDown,
     handleMouseMove,
@@ -58,8 +64,12 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
           onMouseDown={handleChartMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          className={`relative w-full flex-1 min-h-0 overflow-hidden ${isDragging ? 'chart-dragging' : ''}`}
+          onMouseLeave={() => {
+            handleMouseLeave()
+            setActiveChartId(null)
+          }}
+          onMouseEnter={() => setActiveChartId(chart.id)}
+          className={`relative w-full flex-1 min-h-0 ${isDragging ? 'chart-dragging overflow-visible' : 'overflow-hidden'}`}
           style={{ cursor: isDragging ? 'ew-resize' : 'pointer' }}
         >
           <ChartContainer 
@@ -67,14 +77,11 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
             config={chartConfig} 
             className='min-h-[40px] w-full h-full'
           >
-            <BarChart data={filteredData} syncId="chart-dashboard-sync">
-              {/*<XAxis*/}
-              {/*  dataKey="date"*/}
-              {/*  tickLine={false}*/}
-              {/*  tickMargin={10}*/}
-              {/*  axisLine={false}*/}
-              {/*  tickFormatter={(date) => date.toLocaleDateString("en-GB")}*/}
-              {/*/>*/}
+            <BarChart 
+              data={filteredData} 
+              syncId="chart-dashboard-sync"
+              margin={{ bottom: DATE_NIB_MARGIN }}
+            >
               <Bar 
                 dataKey="value" 
                 fill={getFillValue()} 
@@ -84,11 +91,11 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
               />
               <ChartTooltip 
                 content={<ChartTooltipContent labelKey='date' />}
-                cursor={<SynchronizedChartCursor />}
+                cursor={<SynchronizedChartCursor categoryColor={getCategoryColor()} chartId={chart.id} />}
               />
             </BarChart>
           </ChartContainer>
-          {/* Custom overlay rectangle for drag selection */}
+
           {overlayRect && dimensions.width > 0 && (
             <DateRangeOverlay
               startIndex={overlayRect.startIndex}
@@ -96,14 +103,24 @@ function ChartComponent({ chart, showDragHandle, dateRange, updateDateRange }: C
               totalBars={filteredData.length}
               color={overlayRect.color}
               containerWidth={dimensions.width}
-              containerHeight={dimensions.height}
+              containerHeight={dimensions.height - DATE_NIB_MARGIN}
+            />
+          )}
+          {isDragging && startIndex !== null && startDate && dimensions.width > 0 && (
+            <StartDateNib
+              startIndex={startIndex}
+              startDate={startDate}
+              totalBars={filteredData.length}
+              color={getCategoryColor()}
+              containerWidth={dimensions.width}
+              containerHeight={dimensions.height - DATE_NIB_MARGIN}
             />
           )}
         </div>
       </div>
       <div>
-        <div className='mt-2 flex-shrink-0'>
-          <div className='text-sm ml-1'>{chart.label}</div>
+        <div className='flex-shrink-0'>
+          <div className='-mt-2 text-sm ml-1'>{chart.label}</div>
 
           { showDragHandle && <DragHandle /> }
 

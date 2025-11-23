@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from "react"
-import type { ChartConfig } from "@/components/ui/chart"
+import type { ChartConfig } from "@/components/ui/chart.tsx"
 import type { Chart } from "@/components/chart-dashboard/chart.ts"
 
 

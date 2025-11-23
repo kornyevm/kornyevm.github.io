@@ -178,10 +178,13 @@ export function useChartDragSelection({
     }
   }, [isDragging, handleMouseUp, calculateBarIndex])
 
+  const startDate = startIndex !== null ? filteredData[startIndex]?.date : null
+
   return {
     isDragging,
     startIndex,
     currentIndex,
+    startDate,
     handleBarClick,
     handleChartMouseDown,
     handleMouseMove,

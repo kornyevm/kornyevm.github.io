@@ -1,10 +1,11 @@
 import type {Chart} from "@/components/chart-dashboard/chart.ts"
-import ChartComponent from "@/components/chart-dashboard/components/chart-layout/components/ChartComponent"
+import ChartComponent from "@/components/chart-dashboard/components/chart-layout/components/chart/ChartComponent.tsx"
 import GridLayout, { type Layout } from "react-grid-layout"
 import {LayoutMode} from "@/components/chart-dashboard/ChartDashboard.tsx"
 import {useEffect, useRef, useState, useCallback} from "react"
 import ResizeHandle from "@/components/chart-dashboard/components/chart-layout/components/ResizeHandle.tsx";
 import type {DateRange} from "react-day-picker";
+import {ChartHoverProvider} from "@/components/chart-dashboard/components/chart-layout/context-providers/ChartHoverContext.tsx";
 
 type ChartLayoutProps = {
   charts: Chart[]
@@ -100,32 +101,34 @@ function ChartDashboard({ charts, layoutMode, dateRange, updateDateRange }: Char
   }
 
   return (
-    <div ref={containerRef} className="w-full">
-      <GridLayout
-        layout={layout}
-        cols={numGridCols}
-        rowHeight={ROW_HEIGHT_PX}
-        width={width}
-        margin={[10, 45]}
-        isBounded={true}
-        draggableHandle=".drag-chart-handle"
-        resizeHandle={(axis, ref) => <ResizeHandle handleAxis={axis} ref={ref} />}
-        onLayoutChange={persistFreeLayoutChange}
-      >
-        {
-          charts.map((chart) => (
-            <div key={chart.id} className="h-full relative">
-              <ChartComponent 
-                chart={chart} 
-                showDragHandle={layoutMode === LayoutMode.Free}
-                dateRange={dateRange}
-                updateDateRange={updateDateRange}
-              />
-            </div>
-          ))
-        }
-      </GridLayout>
-    </div>
+    <ChartHoverProvider>
+      <div ref={containerRef} className="w-full">
+        <GridLayout
+          layout={layout}
+          cols={numGridCols}
+          rowHeight={ROW_HEIGHT_PX}
+          width={width}
+          margin={[10, 45]}
+          isBounded={true}
+          draggableHandle=".drag-chart-handle"
+          resizeHandle={(axis, ref) => <ResizeHandle handleAxis={axis} ref={ref} />}
+          onLayoutChange={persistFreeLayoutChange}
+        >
+          {
+            charts.map((chart) => (
+              <div key={chart.id} className="h-full relative">
+                <ChartComponent 
+                  chart={chart} 
+                  showDragHandle={layoutMode === LayoutMode.Free}
+                  dateRange={dateRange}
+                  updateDateRange={updateDateRange}
+                />
+              </div>
+            ))
+          }
+        </GridLayout>
+      </div>
+    </ChartHoverProvider>
   )
 }
 
