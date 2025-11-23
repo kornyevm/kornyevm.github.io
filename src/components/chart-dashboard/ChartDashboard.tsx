@@ -20,7 +20,7 @@ export const LayoutMode = {
 } as const
 export type LayoutMode = (typeof LayoutMode)[keyof typeof LayoutMode]
 
-const DEFAULT_DATE_RANGE__MONTHS = 3
+const DEFAULT_DATE_RANGE__MONTHS = 2
 const SM_BREAKPOINT = 640 // TW xs|sm breakpoint
 
 function ChartDashboard() {
