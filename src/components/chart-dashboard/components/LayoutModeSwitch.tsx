@@ -34,25 +34,20 @@ function LayoutModeSwitch({ mode, updateMode }: LayoutModeSwitchProps) {
           Custom
         </Button>
       </ButtonGroup>
-
-      {
-        mode === LayoutMode.Free && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className='rounded-full ml-1'>
-                <CircleQuestionMark />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent side='right' className="w-80">
-                <p className='text-xs'>
-                  In Custom layout mode, you can freely position / scale your data using the handles in the bottom right-hand corner of each chart.
-                  <br /><br />
-                  Don't worry! Your changes will be auto-saved.
-                </p>
-            </PopoverContent>
-          </Popover>
-        )
-      }
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className='rounded-full ml-1'>
+            <CircleQuestionMark />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent side='right' className="w-80">
+            <p className='text-xs'>
+              In <b>Custom</b> layout mode, you can freely position / scale your data using the handles in the bottom right-hand corner of each chart.
+              <br /><br />
+              Don't worry! Your changes will be auto-saved.
+            </p>
+        </PopoverContent>
+      </Popover>
     </>
   )
 }

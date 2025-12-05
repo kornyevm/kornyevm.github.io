@@ -6,11 +6,15 @@ import ChartLayout from "@/components/chart-dashboard/components/chart-layout/Ch
 import {chartData, orderedChartDataDates} from "@/components/chart-dashboard/chart-data.ts";
 import {useState, useEffect} from "react";
 import type {DateRange} from "react-day-picker";
+import { toast } from "sonner"
 
 // Grid Library Imports
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import "./components/chart-layout/library-overrides.css"
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover.tsx";
+import {Button} from "@/components/ui/button.tsx";
+import {CircleQuestionMark} from "lucide-react";
 
 // Types
 export const LayoutMode = {
@@ -50,6 +54,24 @@ function ChartDashboard() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (window.innerWidth < SM_BREAKPOINT) return
+      toast(
+        "Did you know — you can change the date range by clicking and dragging on one of the Charts!",
+        {
+          duration: Infinity,
+          action: {
+            label: "Got it",
+            onClick: () => toast.dismiss(),
+          },
+        }
+      )
+    }, 10000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <>
       <Card className="w-full mt-4 p-1.5">
@@ -67,6 +89,18 @@ function ChartDashboard() {
             minDate={orderedChartDataDates[0]}
             maxDate={orderedChartDataDates[orderedChartDataDates.length - 1]}
           />
+          <Popover>
+            <PopoverTrigger asChild className="sm:hidden">
+              <Button variant="ghost" size="icon" className='rounded-full ml-1'>
+                <CircleQuestionMark />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent side='bottom' className="w-80">
+              <p className='text-xs'>
+                To use different layout modes, flip your device to horizontal, or switch to a device with a larger screen!
+              </p>
+            </PopoverContent>
+          </Popover>
         </CardContent>
       </Card>
 

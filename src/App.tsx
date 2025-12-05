@@ -1,8 +1,13 @@
 import ChartDashboard from "@/components/chart-dashboard/ChartDashboard.tsx"
+import AppDescriptionAlert from "@/components/AppDescription.tsx";
+import {Toaster} from "sonner";
 
 function App() {
   return (
     <div className='xl:px-36 lg:px-32 md:px-24 sm:px-8 px-5 py-5'>
+      <Toaster />
+
+      <AppDescriptionAlert />
       <ChartDashboard />
 
       <div className='text-center text-xs text-gray-300 mb-5'>
